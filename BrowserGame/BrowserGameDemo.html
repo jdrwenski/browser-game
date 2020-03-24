@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="dynamics.js"></script>
+
+<script>
+var canvas;		//Zeichenfläche
+var context;	//Zeichenwerkzeuge
+ 
+var redBall;
+var blueBall;
+var greenBox;
+var floorBox;
+var gravity = new Vector(0,0.05);
+
+// Initialisierung von Zeichenfläche & Spielobjekten:
+function init() {
+	canvas = document.getElementById("world");
+	context = canvas.getContext("2d");
+	
+	canvas.addEventListener("keydown", handleKeydown);
+	canvas.addEventListener("keyup", handleKeyup);
+	canvas.focus() // siehe tabindex im html-body
+	
+	// mit Sprites statt Bällen:
+	/*
+	var img = new Image();
+	img.src = "sprite.png";
+	redBall = new circularSprite(img, 38, new Vector(50,530));
+	*/
+	
+	redBall = new Ball(30, new Vector(50,530));
+	blueBall = new Ball(30, new Vector(800,570), new Vector(-2,-6)); 
+	redBall.color = "red";
+	blueBall.color = "blue";
+
+	greenBox = new Box(200,50, new Vector(300,400));
+	greenBox.color = "green";
+
+	floorBox = new Box(canvas.width,0, new Vector(0,canvas.height));
+	
+	// Statusvariablen für Bewegungsablauf der Spielfigur:
+	redBall.speedsRight = false;
+	redBall.speedsLeft = false;
+	redBall.jumps = false;
+}
+
+// ruft die Methoden der Physics Engine auf:
+function update() {
+	redBall.move(gravity);
+	blueBall.move(gravity);
+	
+	floorBox.reflectBall(blueBall);
+	greenBox.reflectBall(blueBall);
+	
+	redBall.jumps = !floorBox.reflectBall(redBall, 0.0, 0.98)
+					&& !greenBox.reflectBall(redBall, 0.0, 0.98);
+	
+	if (redBall.collidesWith(blueBall)) {
+		redBall.exchangeElasticImpulseWith(blueBall);
+	}
+	
+	if (redBall.speedsRight && !redBall.jumps) { 
+		redBall.velocity.x = 3.0;
+	}
+	if (redBall.speedsLeft && !redBall.jumps) { 
+		redBall.velocity.x = -3.0;
+	}
+}
+
+// zeichnet alle 10 ms den Canvas neu:
+function paint() {
+	context.fillStyle = "lightblue";
+	context.fillRect(0,0,canvas.width,canvas.height);
+	let relative = new Vector(0,0); 	// bei Bewegung des Hintergrunds
+	redBall.draw(context,relative);
+	blueBall.draw(context,relative);
+	greenBox.draw(context,relative);
+	update(); 	// Bewegungen der Spielobjekte neu berechnen lassen!
+	setTimeout(paint,10); 
+}
+
+// Tastatursteuerung beim Herunterdrücken:
+function handleKeydown(event) {
+  let key = event.key || event.keyCode;
+  let hasHandled = true;
+  switch (key) {
+	case "s": case "ArrowDown":  break;
+	case "w": case "ArrowUp":
+		if (!redBall.jumps) {
+			redBall.velocity.y = -5.0;
+			redBall.jumps = true;
+		}
+		break;
+    case "a": case "ArrowLeft":  
+		if (!redBall.jumps) redBall.speedsLeft = true;
+		break;
+    case "d": case "ArrowRight":
+		if (!redBall.jumps) redBall.speedsRight = true;
+		break;
+    case "Enter":
+		// "enter" bzw. "return"
+		break;
+    case "Escape":
+		// "esc"
+		break;
+    default: //jede andere Taste
+		hasHandled = false;
+  }
+  if (hasHandled) event.preventDefault();
+};
+
+// Tastatursteuerung beim Loslassen:
+function handleKeyup(event) {
+  let key = event.key || event.keyCode;
+  let hasHandled = true;
+  switch (key) {
+	case "s": case "ArrowDown":  break;
+	case "w": case "ArrowUp": break;
+    case "a": case "ArrowLeft":  
+		redBall.speedsLeft = false;
+		break;
+    case "d": case "ArrowRight":
+		redBall.speedsRight = false;
+		break;
+    case "Enter":
+		// "enter" bzw. "return"
+		break;
+    case "Escape":
+		// "esc"
+		break;
+    default: //jede andere Taste
+		hasHandled = false;
+  }
+  if (hasHandled) event.preventDefault();
+};
+
+</script>
+</head>
+
+<body onload="init();paint();" >
+	<canvas id="world" width="800" height="600" tabindex="1" />
+	<!-- tabindex macht den canvas fokussierbar -->
+</body>
+
+</html>
+
+
+
+
+
+
+
