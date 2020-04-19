@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script>
+var canvas;		//Zeichenfläche
+var context;	//Zeichenwerkzeuge
+ 
+var position = 0;
+
+
+// Initialisierung von Zeichenfläche & Spielobjekten:
+function init() {
+	canvas = document.getElementById("world");
+	context = canvas.getContext("2d");
+}
+
+
+// Aktualisieren der Positionen:
+function update() {
+	position++;
+}
+
+
+// zeichnet alle 10 ms den Canvas neu:
+function paint() {
+	// Hintergrund zeichnen:
+	context.fillStyle = "lightblue";
+	context.fillRect(0,0,canvas.width,canvas.height);
+	// Rechteck zeichnen:
+	context.fillStyle = "red";
+	context.fillRect(position,200,100,50);
+	// Game Loop:
+	update(); 	
+	setTimeout(paint,10); 
+}
+
+
+</script>
+</head>
+
+<body onload="init();paint();" >
+	<canvas id="world" width="800" height="600" tabindex="1" />
+	<!-- tabindex macht den canvas fokussierbar -->
+</body>
+
+</html>
+
+
+
+
+
+
+
