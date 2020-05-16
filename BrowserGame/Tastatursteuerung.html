@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script>
+var canvas;		//Zeichenfläche
+var context;	//Zeichenwerkzeuge
+
+// Objekt Literal (d.h. ohne Klassendefinition)
+// vgl. https://www.peterkropff.de/site/javascript/objektliterale.htm
+var redBox = {
+	posX: 0,
+	posY: 200,
+	width: 100,
+	height: 50,
+	color: "red",
+	moveRight: function() {
+		this.posX += 10;
+	}
+}
+
+
+// Initialisierung von Zeichenfläche & Spielobjekten:
+function init() {
+	canvas = document.getElementById("world");
+	context = canvas.getContext("2d");
+	canvas.addEventListener("keydown", handleKeydown);
+	canvas.focus() // siehe tabindex im html-body
+}
+
+
+// Aktualisieren der Positionen:
+function update() {
+	// im Moment nur über Tastatursteuerung!
+}
+
+
+// zeichnet alle 10 ms den Canvas neu:
+function paint() {
+	// Hintergrund zeichnen:
+	context.fillStyle = "lightblue";
+	context.fillRect(0,0,canvas.width,canvas.height);
+	// Rechteck zeichnen:
+	context.fillStyle = redBox.color;
+	context.fillRect(redBox.posX, redBox.posY, redBox.width, redBox.height);
+	// Game Loop:
+	update(); 	
+	setTimeout(paint,10); 
+}
+
+// vgl. https://www.mediaevent.de/javascript/Extras-Javascript-Keycodes.html
+function handleKeydown(event) {
+	switch (event.key) {
+		case "ArrowRight": 
+			redBox.moveRight();
+			break;
+	}
+}
+
+</script>
+</head>
+
+<body onload="init();paint();" >
+	<canvas id="world" width="800" height="600" tabindex="1" />
+	<!-- tabindex macht den canvas fokussierbar -->
+</body>
+
+</html>
+
+
+
+
+
+
+
